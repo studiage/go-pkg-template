@@ -1,4 +1,4 @@
-name: Bump Version
+name: Release
 
 on:
   push:
@@ -7,53 +7,10 @@ on:
 
 jobs:
   bump-version:
-    # ensure that it doesn't run if the commit is already a release commit created by this workflow
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
-    runs-on: ubuntu-latest
     permissions:
       contents: write
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Check for semantic commits
-        id: check_commits
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-
-          if [ -z "$LAST_TAG" ]; then
-            # No tags yet, check all commits
-            if git log --format=%B | grep -qE "^(feat|fix|BREAKING CHANGE):"; then
-              echo "trigger=true" >> $GITHUB_OUTPUT
-            else
-              echo "trigger=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            # Check commits since last tag
-            if git log $LAST_TAG..HEAD --format=%B | grep -qE "^(feat|fix|BREAKING CHANGE):"; then
-              echo "trigger=true" >> $GITHUB_OUTPUT
-            else
-              echo "trigger=false" >> $GITHUB_OUTPUT
-            fi
-          fi
-
-      - name: Auto Bump Version
-        if: steps.check_commits.outputs.trigger == 'true'
-        run: npx commit-and-tag-version
-
-      - name: Push Changes
-        if: steps.check_commits.outputs.trigger == 'true'
-        run: git push --follow-tags origin main
+      pull-requests: write
+    uses: studiage/gha-workflow/.github/workflows/reusable-bump-version.yml@v0.0.1
+    with:
+      release-branch: main
+      node-version: "24"
