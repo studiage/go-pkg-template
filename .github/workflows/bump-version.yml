@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: studiage/gha-workflow/.github/workflows/reusable-bump-version.yml@v0.0.1
+    uses: studiage/gha-workflow/.github/workflows/reusable-bump-version.yml@v0.0.7
     with:
       release-branch: main
       node-version: "24"
