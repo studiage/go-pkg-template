@@ -1,0 +1,4 @@
+pre-commit:
+  jobs:
+    - name: go tidy and fmt
+      run: .scripts/go-pre-commit.sh
